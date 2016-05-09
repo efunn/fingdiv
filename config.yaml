@@ -1,0 +1,8 @@
+##############################
+# fingdiv configuration file #
+##############################
+
+subject-id: demo # demo, 2016XXXX-pilot
+fullscreen: False # True, False
+starting-mode: debug # debug, test, train, scan
+location: lab # lab, scanner
