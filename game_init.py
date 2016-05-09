@@ -54,7 +54,7 @@ def generate_constants(game):
                                 'scan': 6}
 
     # forces
-    game.MAX_KEY_FORCE = 7.
+    game.MAX_KEY_FORCE = 3.
 
 
 def generate_variables(game):

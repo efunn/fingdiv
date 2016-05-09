@@ -45,12 +45,12 @@ class Pydaq(object):
 
         # define data buffers and filters
 
-        self.volts_zero = np.array([0.0,0.0])
+        self.volts_zero = np.array([0.0,0.0,0.0,0.0])
         self.frame_rate = frame_rate
         self.zero_time = int(0.25*frame_rate)
         self.buffer_size = 3*frame_rate
-        self.volts_buffer = np.zeros((2, self.buffer_size))
-        self.force_buffer = np.zeros((2, self.buffer_size))
+        self.volts_buffer = np.zeros((4, self.buffer_size))
+        self.force_buffer = np.zeros((4, self.buffer_size))
         (self.butter_lowpass_rt_b,
          self.butter_lowpass_rt_a) = gf.butter_lowpass(lp_filt_freq,
                                                        self.frame_rate,
@@ -77,11 +77,13 @@ class Pydaq(object):
 
 
     def force_transform(self, force_in):
-        f_x = self.force_interp(force_in[0], 0)
-        f_y = self.force_interp(force_in[1], 1)
+        f_1 = self.force_interp(force_in[0], 0)
+        f_2 = self.force_interp(force_in[1], 1)
+        f_3 = self.force_interp(force_in[2], 2)
+        f_4 = self.force_interp(force_in[3], 3)
         self.force_buffer = np.roll(self.force_buffer, -1) 
-        self.force_buffer[:,-1] = f_x, f_y
-        return f_x, f_y
+        self.force_buffer[:,-1] = f_1, f_2, f_3, f_4
+        return f_1, f_2, f_3, f_4
 
 
     def force_interp(self, force_in, axis):
@@ -101,17 +103,25 @@ class Pydaq(object):
 
     def filt_volts(self, volts_in):
         self.volts_buffer = np.roll(self.volts_buffer, -1) 
-        self.volts_buffer[:,-1] = volts_in[0], volts_in[1] 
-        v_x = gf.filter_data_rt(self.volts_buffer[0,:],
+        self.volts_buffer[:,-1] = volts_in[0], volts_in[1], volts_in[2], volts_in[3]
+        v_1 = gf.filter_data_rt(self.volts_buffer[0,:],
                                 self.butter_lowpass_rt_b,
                                 self.butter_lowpass_rt_a)
-        v_y = gf.filter_data_rt(self.volts_buffer[1,:],
+        v_2 = gf.filter_data_rt(self.volts_buffer[1,:],
                                 self.butter_lowpass_rt_b,
                                 self.butter_lowpass_rt_a)
-        return v_x, v_y
+        v_3 = gf.filter_data_rt(self.volts_buffer[2,:],
+                                self.butter_lowpass_rt_b,
+                                self.butter_lowpass_rt_a)
+        v_4 = gf.filter_data_rt(self.volts_buffer[3,:],
+                                self.butter_lowpass_rt_b,
+                                self.butter_lowpass_rt_a)
+        return v_1, v_2, v_3, v_4
 
 
     def set_volts_zero(self):
         self.volts_zero[0] = np.mean(self.volts_buffer[0,-self.zero_time:-1])
         self.volts_zero[1] = np.mean(self.volts_buffer[1,-self.zero_time:-1])
+        self.volts_zero[2] = np.mean(self.volts_buffer[2,-self.zero_time:-1])
+        self.volts_zero[3] = np.mean(self.volts_buffer[3,-self.zero_time:-1])
 
