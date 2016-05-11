@@ -104,7 +104,7 @@ def draw_keyboard(game, mode='press'):
                              game.KEY_HEIGHT,
                              game.CUE_COLOR,
                              .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
-                             game.KEY_YPOS+0.5*game.KEY_HEIGHT)
+                             game.KEY_YPOS)
         elif mode == 'feedback':
             # add logic for color
             if True:

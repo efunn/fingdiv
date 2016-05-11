@@ -12,6 +12,7 @@ def reset_for_next_trial(game):
     game.timers['trial'].soft_reset()
     game.current_finger = game.finger_list[game.trial_count]
     game.trial_count += 1
+    gg.draw_keyboard(game, 'rest')
 
 def run_rest(game):
     ###########

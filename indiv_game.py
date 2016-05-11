@@ -70,9 +70,13 @@ class Game(object):
         self.mode = mode
         self.trials_per_run = self.TRIALS_PER_RUN[mode]
         self.runs_per_experiment = self.RUNS_PER_EXPERIMENT[mode]
+        gi.init_timers(self)
 
     def set_fingers(self):
-        pass
+        game.finger_list = []
+        for block in range(game.trials_per_run/len(game.VALID_FINGERS_LIST)):
+            np.random.shuffle(game.VALID_FINGERS_LIST)
+            game.finger_list += game.VALID_FINGERS_LIST
 
     def draw_splash(self):
         if game.run_count < game.runs_per_experiment:
@@ -107,8 +111,32 @@ class Game(object):
             self.check_input()
             self.draw_background()
             if self.run_trials:
+                self.timers['trial'].update(time_passed)
+                if self.timers['trial'].time < 1000*game.TRIAL_START_REST:
+                    gr.run_rest(self)
+                elif (self.timers['trial'].time
+                        < 1000*(game.TRIAL_START_REST+game.CUE_TIME)):
+                    gr.run_cue(self)
+                elif (self.timers['trial'].time
+                        < 1000*(game.TRIAL_START_REST+game.CUE_TIME
+                                +game.PRESS_TIME)):
+                    gr.run_press(self)
+                elif (self.timers['trial'].time
+                        < 1000*(game.TRIAL_START_REST+game.CUE_TIME
+                                +game.PRESS_TIME+game.PRE_FEEDBACK_TIME)):
+                    gr.run_rest(self)
+                elif ((game.mode == 'train' or game.mode == 'scan') and
+                        (self.timers['trial'].time
+                            < 1000*(game.TRIAL_START_REST+game.CUE_TIME
+                            +game.PRESS_TIME+game.PRE_FEEDBACK_TIME+game.FEEDBACK_TIME))):
+                    gr.run_feedback(self)
+                elif not(self.timers['trial'].time_limit_hit):
+                    gr.run_rest(self)
+                elif self.trial_count < self.trials_per_run:
+                    gr.reset_for_next_trial(self)
+                else:
+                    self.run_trials = False
                 # add timing logic
-                gg.draw_keyboard(self)
                 # if not(self.timers['cue'].time_limit_hit):
                 #     self.timers['cue'].update(time_passed)
                 #     gr.run_sequence_cue(self)

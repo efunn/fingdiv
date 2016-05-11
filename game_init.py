@@ -37,25 +37,26 @@ def generate_constants(game):
     game.FIXATION_COLOR = 255,255,255
 
     # time
-    game.TRIAL_START_REST = 0.5
-    game.CUE_TIME = 0.5
+    game.TRIAL_START_REST = 1.
+    game.CUE_TIME = 1.
     game.PRESS_TIME = 6.
-    game.PRE_FEEDBACK_TIME = 0.5
+    game.PRE_FEEDBACK_TIME = 1.
     game.FEEDBACK_TIME = 2.
-    game.TRIAL_TIME = 10.
+    game.TRIAL_TIME = 12.
 
     # trials and runs
-    game.TRIALS_PER_RUN = {'debug': 2,
+    game.TRIALS_PER_RUN = {'debug': 4,
                            'test': 16,
                            'train': 16,
                            'scan': 24}
-    game.RUNS_PER_EXPERIMENT = {'debug': 2,
+    game.RUNS_PER_EXPERIMENT = {'debug': 4,
                                 'test': 10,
                                 'train': 15,
                                 'scan': 6}
 
-    # forces
+    # forces and fingers
     game.MAX_KEY_FORCE = 3.
+    game.VALID_FINGERS_LIST = [0,1,2,3]
 
 
 def generate_variables(game):
@@ -90,7 +91,5 @@ def generate_variables(game):
         game.finger_list = []
 
 def init_timers(game):
-    game.timers['cue'] = Timer(game.CUE_TIME)
     game.timers['trial'] = Timer(game.TRIAL_TIME,
                                  game.trials_per_run)
-    game.timers['feedback'] = Timer(game.FEEDBACK_TIME)
