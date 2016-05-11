@@ -14,9 +14,9 @@ def generate_constants(game):
     game.FRAME_RATE = 60
     game.KEY_YPOS = 0.5*game.SCREEN_HEIGHT
     game.KEY_XPOS = 0.15*game.SCREEN_HEIGHT
-    game.KEY_HEIGHT = 0.3*game.SCREEN_HEIGHT
-    game.FRAME_HEIGHT = 0.2*game.SCREEN_HEIGHT
+    game.KEY_HEIGHT = 0.4*game.SCREEN_HEIGHT
     game.KEY_WIDTH = 0.1*game.SCREEN_WIDTH
+    game.FRAME_HEIGHT = 0.2*game.SCREEN_HEIGHT
     game.NUMBER_OFFSET = 10
     game.STAR_OFFSET = 40
     game.FIXATION_OFFSET = -5
@@ -37,6 +37,7 @@ def generate_constants(game):
     game.FIXATION_COLOR = 255,255,255
 
     # time
+    game.TRIAL_START_REST = 0.5
     game.CUE_TIME = 0.5
     game.PRESS_TIME = 6.
     game.PRE_FEEDBACK_TIME = 0.5
@@ -45,12 +46,12 @@ def generate_constants(game):
 
     # trials and runs
     game.TRIALS_PER_RUN = {'debug': 2,
-                           'test': 4,
-                           'train': 4,
-                           'scan': 20}
+                           'test': 16,
+                           'train': 16,
+                           'scan': 24}
     game.RUNS_PER_EXPERIMENT = {'debug': 2,
-                                'test': 9,
-                                'train': 24,
+                                'test': 10,
+                                'train': 15,
                                 'scan': 6}
 
     # forces
@@ -81,7 +82,12 @@ def generate_variables(game):
         game.last_trial_recorded_bool = False
 
         # force variables
-        game.force_array = np.array([3.5,14.,1.,6.5]) # test array
+        game.force_array = game.MAX_KEY_FORCE*np.array([.25,.5,.8,.4]) # test array
+        game.feedback_force_array = game.MAX_KEY_FORCE*np.array([.15,.4,.75,.6]) # test array
+
+        # game logic
+        game.current_finger = -1
+        game.finger_list = []
 
 def init_timers(game):
     game.timers['cue'] = Timer(game.CUE_TIME)

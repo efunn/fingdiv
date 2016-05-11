@@ -122,13 +122,6 @@ class SequenceGame(object):
 
     def run(self):
         while True:
-            ###################
-            # FEATURES TO ADD #
-            ###################
-            # 1. interspersed rest blocks (add 'rest' sequence)
-            # 2. frame-by-frame recording
-            # 3. trial-by-trial recording for rest blocks
-            # 4. fix timing resets to add remainder times (1-2 frames)
             time_passed = self.clock.tick_busy_loop(self.FRAME_RATE)
             self.check_input()
             self.check_key_status()

@@ -3,73 +3,39 @@ import fileutils as fu
 import numpy as np
 
 def reset_for_next_run(game):
-    game.set_sequences()
-    reset_for_next_sequence_trial(game)
+    game.set_fingers()
+    game.trial_count = 0
+    reset_for_next_trial(game)
     game.run_count += 1
-    game.trial_count = 1
-    reset_score_stats(game)
 
-def reset_score_stats(game):
-    game.execution_time_array = np.array(([]))
-    game.error_array = np.array([])
-    game.points_total = 0
-    game.last_trial_recorded_bool = False
-
-def reset_for_next_sequence_trial(game):
-    game.timers['cue'].soft_reset()
-    reset_for_next_sequence_execution(game, draw_progress_bool=False)
-    game.current_sequence = game.sequence_list[
-        np.mod(game.trial_count,len(game.sequence_list))]
+def reset_for_next_trial(game):
+    game.timers['trial'].soft_reset()
+    game.current_finger = game.finger_list[game.trial_count]
     game.trial_count += 1
-    game.timers['score'].count_limit_hit = False
-    game.timers['score'].count = 0
 
-def run_sequence_cue(game):
-    #############
-    # 5 3 4 1 2 #
-    #############
-    gg.draw_cue(game)
+def run_rest(game):
+    ###########
+    # . * . . #
+    ###########
+    gg.draw_keyboard(game, 'rest')
 
-def run_sequence_move(game):
-    #|*|*|* * *
-    #############
-    #     *     #
-    #############
-    if (game.current_key != game.last_key_pressed
-            and game.current_key != 'none'):
-        game.last_key_pressed = game.current_key
-        if game.current_key == game.current_sequence[game.key_in_sequence]:
-            game.sequence_progress[game.key_in_sequence] = 'correct'
-            game.key_in_sequence += 1
-        else:
-            game.sequence_progress[game.key_in_sequence] = 'wrong'
-            game.key_in_sequence += 1
-    if game.key_in_sequence > 4:
-        game.current_sequence_complete = True
-    gg.draw_sequence_progress(game)
+def run_cue(game):
+    ###########
+    # . * . . #
+    ###########
+    gg.draw_keyboard(game, 'cue')
 
-def run_sequence_score(game):
-    #############
-    #   * * *   #
-    #############
+def run_press(game):
+    ###########
+    # . I . . #
+    ###########
+    gg.draw_keyboard(game, 'press')
 
-    if not(game.last_trial_recorded_bool):
-        record_score(game)
-        game.last_trial_recorded_bool = True
-    if game.sequence_progress == game.SEQUENCE_CORRECT:
-        color = game.ACTIVE_COLOR
-        if (game.timers['move'].time < 0.8*np.median(game.execution_time_array)
-                and game.mode != 'scan'):
-            gg.draw_fixation(game, xpos=.5*game.SCREEN_WIDTH+game.KEY_XPOS, color=color)
-            gg.draw_fixation(game, xpos=.5*game.SCREEN_WIDTH-game.KEY_XPOS, color=color)
-        elif game.timers['move'].time > 1.2*np.median(game.execution_time_array):
-            color = game.SLOW_COLOR
-    else:
-        color = game.WRONG_COLOR
-    gg.draw_fixation(game, xpos=.5*game.SCREEN_WIDTH, color=color)
-
-def run_sequence_score_rest(game):
-    gg.draw_fixation(game, xpos=.5*game.SCREEN_WIDTH, color=game.FIXATION_COLOR)
+def run_feedback(game):
+    ###########
+    # i I i i #
+    ###########
+    gg.draw_keyboard(game, 'feedback')
 
 def record_score(game):
     fu.trial_record(game, game.f_trial)
