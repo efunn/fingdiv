@@ -142,26 +142,35 @@ class Game(object):
                     else:
                         self.timers['press_limit'].update(time_passed)
                         gr.run_press(self)
-                elif self.mode == 'test':
-                    if not(self.timers['press_limit'].time_limit_hit):
-                        self.timers['press_limit'].update(time_passed)
-                        gr.run_rest(self)
-                    elif not(self.timers['press_limit'].count_limit_hit):
-                        gr.reset_for_next_press(self)
-                    elif self.trial_count < self.trials_per_run:
-                        gr.reset_for_next_trial(self)
-                    else:
-                        self.run_trials = False
-                elif self.mode == 'train':
-                    if not(self.timers['feedback'].time_limit_hit):
+                # elif self.mode == 'test':
+                #     if not(self.timers['press_limit'].time_limit_hit):
+                #         self.timers['press_limit'].update(time_passed)
+                #         gr.run_rest(self)
+                #     elif not(self.timers['press_limit'].count_limit_hit):
+                #         gr.reset_for_next_press(self)
+                #     elif self.trial_count < self.trials_per_run:
+                #         gr.reset_for_next_trial(self)
+                #     else:
+                #         self.run_trials = False
+                # elif self.mode == 'train':
+                #     if not(self.timers['feedback'].time_limit_hit):
+                #         self.timers['feedback'].update(time_passed)
+                #         gr.run_feedback(self)
+                #     elif not(self.timers['feedback'].count_limit_hit):
+                #         gr.reset_for_next_press(self)
+                #     elif self.trial_count < self.trials_per_run:
+                #         gr.reset_for_next_trial(self)
+                #     else:
+                #         self.run_trials = False
+                elif not(self.timers['feedback'].time_limit_hit):
                         self.timers['feedback'].update(time_passed)
                         gr.run_feedback(self)
-                    elif not(self.timers['feedback'].count_limit_hit):
-                        gr.reset_for_next_press(self)
-                    elif self.trial_count < self.trials_per_run:
-                        gr.reset_for_next_trial(self)
-                    else:
-                        self.run_trials = False
+                elif not(self.timers['feedback'].count_limit_hit):
+                    gr.reset_for_next_press(self)
+                elif self.trial_count < self.trials_per_run:
+                    gr.reset_for_next_trial(self)
+                else:
+                    self.run_trials = False
             else:
                 self.draw_splash()
             pygame.display.flip()

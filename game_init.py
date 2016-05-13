@@ -17,6 +17,7 @@ def generate_constants(game):
     game.KEY_HEIGHT = 0.4*game.SCREEN_HEIGHT
     game.KEY_WIDTH = 0.1*game.SCREEN_WIDTH
     game.FRAME_HEIGHT = 0.2*game.SCREEN_HEIGHT
+    game.BEST_LINE_HEIGHT = 4
     game.NUMBER_OFFSET = 10
     game.STAR_OFFSET = 40
     game.FIXATION_OFFSET = -5
@@ -31,14 +32,15 @@ def generate_constants(game):
     # colors
     game.BG_COLOR = 40,40,40
     game.CUE_COLOR = 40,160,40
-    game.PRESS_COLOR = 40,40,160
+    game.PRESS_COLOR = 100,100,100
     game.GOOD_CORR_COLOR = 60,120,60
-    game.BAD_CORR_COLOR = 120,60,60
+    game.BAD_CORR_COLOR = 160,40,40
+    game.BEST_COLOR = 200,200,200
     game.PASSIVE_COLOR = 70,70,70
     game.FIXATION_COLOR = 255,255,255
 
     # time
-    game.REST_TIME = 2.7
+    game.REST_TIME = 1.35
     game.CUE_TIME = 1.35
     game.PRESS_TIME = 1.35
     game.FEEDBACK_TIME = 1.35
@@ -60,7 +62,7 @@ def generate_constants(game):
     # forces and fingers
     game.PRESS_FORCE_THRESHOLD = 2.5
     game.PRESS_FORCE_KEEP_BELOW = 1.
-    game.MIN_KEY_FORCE = 0.25
+    game.MIN_KEY_FORCE = 0.1
     game.MAX_KEY_FORCE = 1.
     game.VALID_FINGERS_LIST = [0,1,2,3]
     game.REST_FINGER = -1
@@ -92,8 +94,14 @@ def generate_variables(game):
 
         # force variables
         game.force_array = game.MAX_KEY_FORCE*np.array([.25,.5,.8,.4]) # test array
-        game.feedback_force_array = game.MAX_KEY_FORCE*np.array([.15,.4,.75,.6]) # test array
-        game.best_feedback_force_array = game.MAX_KEY_FORCE*np.array([1.,1.,1.,1.]) # test array
+        game.feedback_force_array = game.MAX_KEY_FORCE*np.array([[1,1,1,1],
+                                                                 [1,1,1,1],
+                                                                 [1,1,1,1],
+                                                                 [1,1,1,1]]) # test array
+        game.best_feedback_force_array = game.MAX_KEY_FORCE*np.array([[1,1,1,1],
+                                                                      [1,1,1,1],
+                                                                      [1,1,1,1],
+                                                                      [1,1,1,1]]) # test array
 
         # game logic
         game.ready_for_press = False

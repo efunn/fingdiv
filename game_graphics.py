@@ -101,44 +101,52 @@ def draw_keyboard(game, mode='press'):
                              game.PRESS_COLOR,
                              .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
                              game.KEY_YPOS)
+            draw_msg(game.screen, 'GO!', color=game.BEST_COLOR,
+                     loc='center', pos=(.5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                                        .5*game.SCREEN_HEIGHT), size=40)
         elif mode == 'cue' and key == game.current_finger:
-            draw_center_rect(game.screen,
-                             game.KEY_WIDTH,
-                             game.KEY_HEIGHT,
-                             game.CUE_COLOR,
-                             .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
-                             game.KEY_YPOS)
+            draw_msg(game.screen, '*', color=game.BEST_COLOR,
+                 loc='center',
+                 pos=(.5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                      .5*game.SCREEN_HEIGHT+game.STAR_OFFSET),
+                 size=150)
         elif mode == 'feedback':
+            if all(game.feedback_force_array[game.current_finger][finger] >= game.MIN_KEY_FORCE
+                       for finger in range(len(game.force_array))):
+                show_feedback = True
+            else:
+                show_feedback = False
             if key == game.current_finger:
+                if show_feedback:
+                    color = game.GOOD_CORR_COLOR
+                else:
+                    color = game.BAD_CORR_COLOR
                 draw_center_rect(game.screen,
                                  game.KEY_WIDTH,
                                  game.KEY_HEIGHT,
-                                 game.CUE_COLOR,
+                                 color,
                                  .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
                                  game.KEY_YPOS)
-            else:
-                # if (game.feedback_force_array[key]
-                #         > game.best_feedback_force_array[key]):
-                if game.feedback_force_array[key] >= game.MIN_KEY_FORCE:
-                    draw_bottom_rect(game.screen,
+            elif game.mode == 'train':
+                if show_feedback:
+                    if game.feedback_force_array[game.current_finger][key] >= game.MIN_KEY_FORCE:
+                        draw_bottom_rect(game.screen,
+                                         game.KEY_WIDTH,
+                                         convert_key_height(game, game.feedback_force_array[game.current_finger][key]),
+                                         game.GOOD_CORR_COLOR,
+                                         .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                                         game.KEY_YPOS+0.5*game.KEY_HEIGHT)
+                    draw_center_rect(game.screen,
                                      game.KEY_WIDTH,
-                                     convert_key_height(game, game.feedback_force_array[key]),
-                                     game.BAD_CORR_COLOR,
+                                     game.BEST_LINE_HEIGHT,
+                                     game.BEST_COLOR,
                                      .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
-                                     game.KEY_YPOS+0.5*game.KEY_HEIGHT)
-                draw_bottom_rect(game.screen,
-                                 game.KEY_WIDTH,
-                                 convert_key_height(game, game.best_feedback_force_array[key]),
-                                 game.GOOD_CORR_COLOR,
-                                 .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
-                                 game.KEY_YPOS+0.5*game.KEY_HEIGHT)
-                if game.feedback_force_array[key] < game.MIN_KEY_FORCE:
-                    draw_bottom_rect(game.screen,
-                                     game.KEY_WIDTH,
-                                     convert_key_height(game, game.feedback_force_array[key]),
-                                     game.BAD_CORR_COLOR,
-                                     .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
-                                     game.KEY_YPOS+0.5*game.KEY_HEIGHT)
+                                     (game.KEY_YPOS+0.5*game.KEY_HEIGHT
+                                        -convert_key_height(game, game.best_feedback_force_array[game.current_finger][key])))
+            if game.feedback_force_array[game.current_finger][key] < game.MIN_KEY_FORCE:
+                draw_msg(game.screen, 'OFF', color=game.BAD_CORR_COLOR,
+                         loc='center', pos=(.5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                                            .5*game.SCREEN_HEIGHT), size=40)
 
 def convert_key_height(game, force_in):
     key_ratio = force_in/game.MAX_KEY_FORCE

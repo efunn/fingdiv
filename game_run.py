@@ -40,11 +40,12 @@ def run_press(game):
             >= game.PRESS_FORCE_THRESHOLD):
         game.current_press_complete = True
         game.feedback_force_array[:] = game.force_array[:]
-        for finger in range(len(game.force_array)):
-            if game.feedback_force_array[finger] >= game.MIN_KEY_FORCE:
-                game.best_feedback_force_array[finger] = min(
-                    game.best_feedback_force_array[finger],
-                    game.feedback_force_array[finger])
+        if all(game.feedback_force_array[game.current_finger][finger] >= game.MIN_KEY_FORCE
+                   for finger in range(len(game.force_array))):
+            for finger in range(len(game.force_array)):
+                game.best_feedback_force_array[game.current_finger][finger] = min(
+                    game.best_feedback_force_array[game.current_finger][finger],
+                    game.feedback_force_array[game.current_finger][finger])
 
 def run_feedback(game):
     ###########
