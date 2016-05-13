@@ -86,18 +86,21 @@ def draw_keyboard(game, mode='press'):
                          game.PASSIVE_COLOR,
                          .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
                          game.KEY_YPOS)
-        if mode == 'debug' or (mode == 'press' and key == game.current_finger):
-            # add logic for color
-            if True:
-                color = game.GOOD_CORR_COLOR
-            else:
-                color = game.BAD_CORR_COLOR
+        if mode == 'debug':
+            color = game.GOOD_CORR_COLOR
             draw_bottom_rect(game.screen,
+                 game.KEY_WIDTH,
+                 convert_key_height(game, game.force_array[key]),
+                 color,
+                 .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                 game.KEY_YPOS+0.5*game.KEY_HEIGHT)
+        elif mode == 'press' and key == game.current_finger:
+            draw_center_rect(game.screen,
                              game.KEY_WIDTH,
-                             convert_key_height(game, game.force_array[key]),
-                             color,
+                             game.KEY_HEIGHT,
+                             game.PRESS_COLOR,
                              .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
-                             game.KEY_YPOS+0.5*game.KEY_HEIGHT)
+                             game.KEY_YPOS)
         elif mode == 'cue' and key == game.current_finger:
             draw_center_rect(game.screen,
                              game.KEY_WIDTH,
@@ -106,17 +109,36 @@ def draw_keyboard(game, mode='press'):
                              .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
                              game.KEY_YPOS)
         elif mode == 'feedback':
-            # add logic for color
-            if True:
-                color = game.GOOD_CORR_COLOR
+            if key == game.current_finger:
+                draw_center_rect(game.screen,
+                                 game.KEY_WIDTH,
+                                 game.KEY_HEIGHT,
+                                 game.CUE_COLOR,
+                                 .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                                 game.KEY_YPOS)
             else:
-                color = game.BAD_CORR_COLOR
-            draw_bottom_rect(game.screen,
-                             game.KEY_WIDTH,
-                             convert_key_height(game, game.feedback_force_array[key]),
-                             color,
-                             .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
-                             game.KEY_YPOS+0.5*game.KEY_HEIGHT)
+                # if (game.feedback_force_array[key]
+                #         > game.best_feedback_force_array[key]):
+                if game.feedback_force_array[key] >= game.MIN_KEY_FORCE:
+                    draw_bottom_rect(game.screen,
+                                     game.KEY_WIDTH,
+                                     convert_key_height(game, game.feedback_force_array[key]),
+                                     game.BAD_CORR_COLOR,
+                                     .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                                     game.KEY_YPOS+0.5*game.KEY_HEIGHT)
+                draw_bottom_rect(game.screen,
+                                 game.KEY_WIDTH,
+                                 convert_key_height(game, game.best_feedback_force_array[key]),
+                                 game.GOOD_CORR_COLOR,
+                                 .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                                 game.KEY_YPOS+0.5*game.KEY_HEIGHT)
+                if game.feedback_force_array[key] < game.MIN_KEY_FORCE:
+                    draw_bottom_rect(game.screen,
+                                     game.KEY_WIDTH,
+                                     convert_key_height(game, game.feedback_force_array[key]),
+                                     game.BAD_CORR_COLOR,
+                                     .5*game.SCREEN_WIDTH+game.KEY_XPOS*(key-1.5),
+                                     game.KEY_YPOS+0.5*game.KEY_HEIGHT)
 
 def convert_key_height(game, force_in):
     key_ratio = force_in/game.MAX_KEY_FORCE

@@ -49,6 +49,18 @@ class Game(object):
                     gr.reset_for_next_run(game)
                 elif event.key == pygame.K_p:
                     self.run_trials = False
+                elif event.key == pygame.K_q:
+                    if not(SENSOR_ACTIVE):
+                        self.force_array[0] = self.PRESS_FORCE_THRESHOLD
+                elif event.key == pygame.K_w:
+                    if not(SENSOR_ACTIVE):
+                        self.force_array[1] = self.PRESS_FORCE_THRESHOLD
+                elif event.key == pygame.K_e:
+                    if not(SENSOR_ACTIVE):
+                        self.force_array[2] = self.PRESS_FORCE_THRESHOLD
+                elif event.key == pygame.K_r:
+                    if not(SENSOR_ACTIVE):
+                        self.force_array[3] = self.PRESS_FORCE_THRESHOLD
                 elif event.key == pygame.K_LEFT:
                     self.set_run('debug')
                 elif event.key == pygame.K_RIGHT:
@@ -58,7 +70,18 @@ class Game(object):
                 elif event.key == pygame.K_DOWN:
                     self.set_run('scan')
             elif event.type == pygame.KEYUP:
-                pass
+                if event.key == pygame.K_q:
+                    if not(SENSOR_ACTIVE):
+                        self.force_array[0] = self.MIN_KEY_FORCE
+                elif event.key == pygame.K_w:
+                    if not(SENSOR_ACTIVE):
+                        self.force_array[1] = self.MIN_KEY_FORCE
+                elif event.key == pygame.K_e:
+                    if not(SENSOR_ACTIVE):
+                        self.force_array[2] = self.MIN_KEY_FORCE
+                elif event.key == pygame.K_r:
+                    if not(SENSOR_ACTIVE):
+                        self.force_array[3] = self.MIN_KEY_FORCE
         if SENSOR_ACTIVE:
             self.check_keys()
 
@@ -97,76 +120,51 @@ class Game(object):
         #                 loc='center', pos=(.5*self.SCREEN_WIDTH,
         #                                    .6*self.SCREEN_HEIGHT), size=35)
 
-    # def run(self):
-    #     while True:
-    #         time_passed = self.clock.tick_busy_loop(self.FRAME_RATE)
-    #         self.check_input()
-    #         self.draw_background()
-    #         gg.draw_keyboard(self)
-    #         pygame.display.flip()
-
     def run(self):
         while True:
             time_passed = self.clock.tick_busy_loop(self.FRAME_RATE)
             self.check_input()
             self.draw_background()
+            # gg.draw_keyboard(game, 'debug')
             if self.run_trials:
-                self.timers['trial'].update(time_passed)
-                if self.timers['trial'].time < 1000*game.TRIAL_START_REST:
+                if not(self.timers['rest'].time_limit_hit):
+                    self.timers['rest'].update(time_passed)
                     gr.run_rest(self)
-                elif (self.timers['trial'].time
-                        < 1000*(game.TRIAL_START_REST+game.CUE_TIME)):
+                elif not(self.timers['cue'].time_limit_hit):
+                    self.timers['cue'].update(time_passed)
                     gr.run_cue(self)
-                elif (self.timers['trial'].time
-                        < 1000*(game.TRIAL_START_REST+game.CUE_TIME
-                                +game.PRESS_TIME)):
-                    gr.run_press(self)
-                elif (self.timers['trial'].time
-                        < 1000*(game.TRIAL_START_REST+game.CUE_TIME
-                                +game.PRESS_TIME+game.PRE_FEEDBACK_TIME)):
-                    gr.run_rest(self)
-                elif ((game.mode == 'train' or game.mode == 'scan') and
-                        (self.timers['trial'].time
-                            < 1000*(game.TRIAL_START_REST+game.CUE_TIME
-                            +game.PRESS_TIME+game.PRE_FEEDBACK_TIME+game.FEEDBACK_TIME))):
-                    gr.run_feedback(self)
-                elif not(self.timers['trial'].time_limit_hit):
-                    gr.run_rest(self)
-                elif self.trial_count < self.trials_per_run:
-                    gr.reset_for_next_trial(self)
-                else:
-                    self.run_trials = False
-                # add timing logic
-                # if not(self.timers['cue'].time_limit_hit):
-                #     self.timers['cue'].update(time_passed)
-                #     gr.run_sequence_cue(self)
-                # elif not(self.current_sequence_complete):
-                #     self.timers['move'].update(time_passed)
-                #     if not(self.self_paced_bool):
-                #         self.timers['move_limit'].update(time_passed)
-                #         if self.timers['move_limit'].time_limit_hit:
-                #             self.current_sequence_complete = True
-                #     gr.run_sequence_move(self)
-                # elif (not(self.self_paced_bool)
-                #           and not(self.timers['move_limit'].time_limit_hit)):
-                #     self.timers['move_limit'].update(time_passed)
-                #     gg.draw_sequence_progress(self)
-                # elif not(self.timers['score'].time_limit_hit):
-                #     self.timers['score'].update(time_passed)
-                #     if game.current_sequence == game.REST_SEQUENCE:
-                #         gr.run_sequence_score_rest(self)
-                #     else:
-                #         gr.run_sequence_score(self)
-                # elif not(self.timers['score'].count_limit_hit):
-                #     gr.reset_for_next_sequence_execution(self)
-                # elif self.trial_count < self.trials_per_run:
-                #     gr.reset_for_next_sequence_trial(self)
-                # else:
-                #     self.run_trials = False
+                elif not(self.current_press_complete):
+                    if not(self.ready_for_press):
+                        gr.run_rest(self)
+                        if (self.force_array[self.current_finger]
+                                < self.PRESS_FORCE_KEEP_BELOW):
+                            self.ready_for_press = True
+                    else:
+                        self.timers['press_limit'].update(time_passed)
+                        gr.run_press(self)
+                elif self.mode == 'test':
+                    if not(self.timers['press_limit'].time_limit_hit):
+                        self.timers['press_limit'].update(time_passed)
+                        gr.run_rest(self)
+                    elif not(self.timers['press_limit'].count_limit_hit):
+                        gr.reset_for_next_press(self)
+                    elif self.trial_count < self.trials_per_run:
+                        gr.reset_for_next_trial(self)
+                    else:
+                        self.run_trials = False
+                elif self.mode == 'train':
+                    if not(self.timers['feedback'].time_limit_hit):
+                        self.timers['feedback'].update(time_passed)
+                        gr.run_feedback(self)
+                    elif not(self.timers['feedback'].count_limit_hit):
+                        gr.reset_for_next_press(self)
+                    elif self.trial_count < self.trials_per_run:
+                        gr.reset_for_next_trial(self)
+                    else:
+                        self.run_trials = False
             else:
                 self.draw_splash()
             pygame.display.flip()
-
 
     def draw_background(self):
         self.screen.fill(self.BG_COLOR)

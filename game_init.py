@@ -31,20 +31,23 @@ def generate_constants(game):
     # colors
     game.BG_COLOR = 40,40,40
     game.CUE_COLOR = 40,160,40
+    game.PRESS_COLOR = 40,40,160
     game.GOOD_CORR_COLOR = 60,120,60
     game.BAD_CORR_COLOR = 120,60,60
     game.PASSIVE_COLOR = 70,70,70
     game.FIXATION_COLOR = 255,255,255
 
     # time
-    game.TRIAL_START_REST = 1.
-    game.CUE_TIME = 1.
-    game.PRESS_TIME = 6.
-    game.PRE_FEEDBACK_TIME = 1.
-    game.FEEDBACK_TIME = 2.
-    game.TRIAL_TIME = 12.
+    game.REST_TIME = 2.7
+    game.CUE_TIME = 1.35
+    game.PRESS_TIME = 1.35
+    game.FEEDBACK_TIME = 1.35
 
     # trials and runs
+    game.PRESSES_PER_TRIAL = {'debug': 5,
+                              'test': 5,
+                              'train': 5,
+                              'scan': 5}
     game.TRIALS_PER_RUN = {'debug': 4,
                            'test': 16,
                            'train': 16,
@@ -55,8 +58,12 @@ def generate_constants(game):
                                 'scan': 6}
 
     # forces and fingers
-    game.MAX_KEY_FORCE = 3.
+    game.PRESS_FORCE_THRESHOLD = 2.5
+    game.PRESS_FORCE_KEEP_BELOW = 1.
+    game.MIN_KEY_FORCE = 0.25
+    game.MAX_KEY_FORCE = 1.
     game.VALID_FINGERS_LIST = [0,1,2,3]
+    game.REST_FINGER = -1
 
 
 def generate_variables(game):
@@ -65,6 +72,7 @@ def generate_variables(game):
         fu.write_all_headers(game)
 
         game.mode = game.CONFIG['starting-mode']
+        game.presses_per_trial = game.PRESSES_PER_TRIAL[game.mode]
         game.trials_per_run = game.TRIALS_PER_RUN[game.mode]
         game.runs_per_experiment = game.RUNS_PER_EXPERIMENT[game.mode]
 
@@ -85,11 +93,23 @@ def generate_variables(game):
         # force variables
         game.force_array = game.MAX_KEY_FORCE*np.array([.25,.5,.8,.4]) # test array
         game.feedback_force_array = game.MAX_KEY_FORCE*np.array([.15,.4,.75,.6]) # test array
+        game.best_feedback_force_array = game.MAX_KEY_FORCE*np.array([1.,1.,1.,1.]) # test array
 
         # game logic
+        game.ready_for_press = False
+        game.current_press_complete = False
         game.current_finger = -1
         game.finger_list = []
 
 def init_timers(game):
-    game.timers['trial'] = Timer(game.TRIAL_TIME,
-                                 game.trials_per_run)
+    game.timers['rest'] = Timer(game.REST_TIME)
+    game.timers['cue'] = Timer(game.CUE_TIME)
+    game.timers['feedback'] = Timer(game.FEEDBACK_TIME,
+                                    game.presses_per_trial)
+    game.timers['press'] = Timer(sys.maxint)
+    game.timers['press_limit'] = Timer(game.PRESS_TIME,
+                                       game.presses_per_trial)
+    if game.mode == 'scan':
+        game.self_paced_bool = False 
+    else:
+        game.self_paced_bool = True
