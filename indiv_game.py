@@ -61,6 +61,9 @@ class Game(object):
                 elif event.key == pygame.K_r:
                     if not(SENSOR_ACTIVE):
                         self.force_array[3] = self.PRESS_FORCE_THRESHOLD
+                elif event.key == pygame.K_m:
+                    self.show_thermometer_keyboard_bool = not(
+                        self.show_thermometer_keyboard_bool)
                 elif event.key == pygame.K_LEFT:
                     self.set_run('debug')
                 elif event.key == pygame.K_RIGHT:
@@ -125,7 +128,8 @@ class Game(object):
             time_passed = self.clock.tick_busy_loop(self.FRAME_RATE)
             self.check_input()
             self.draw_background()
-            # gg.draw_keyboard(game, 'debug')
+            if self.show_thermometer_keyboard_bool:
+                gg.draw_keyboard(game, 'debug')
             if self.run_trials:
                 if not(self.timers['rest'].time_limit_hit):
                     self.timers['rest'].update(time_passed)

@@ -6,3 +6,4 @@ subject-id: demo # demo, 2016XXXX-pilot
 fullscreen: False # True, False
 starting-mode: train # debug, test, train, scan
 location: lab # lab, scanner
+max-key-force: 1 # in Newtons

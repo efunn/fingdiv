@@ -63,7 +63,7 @@ def generate_constants(game):
     game.PRESS_FORCE_THRESHOLD = 2.5
     game.PRESS_FORCE_KEEP_BELOW = 1.
     game.MIN_KEY_FORCE = 0.1
-    game.MAX_KEY_FORCE = 1.
+    game.MAX_KEY_FORCE = float(game.CONFIG['max-key-force'])
     game.VALID_FINGERS_LIST = [0,1,2,3]
     game.REST_FINGER = -1
 
@@ -108,6 +108,7 @@ def generate_variables(game):
         game.current_press_complete = False
         game.current_finger = -1
         game.finger_list = []
+        game.show_thermometer_keyboard_bool = False
 
 def init_timers(game):
     game.timers['rest'] = Timer(game.REST_TIME)
